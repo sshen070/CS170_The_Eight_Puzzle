@@ -124,12 +124,23 @@ def isGoalState(puzzle):
     return True
             
             
+def puzzleToString(puzzle):
+    set_state = ''
+    for i in range (len(puzzle.state)):
+        for j in range (len(puzzle.state[i])):
+            set_state += str(puzzle.state[i][j])
+    return set_state
+
 
 def UniformCostSearch(puzzle):
-
     # Use as heap to find state with least cost
     queue = []
 
+    # Keep track of visited states to prevent searching repeated states
+    # visited = []
+    # https://www.w3schools.com/PYTHON/python_sets_add.asp
+    visited = set([])
+    
     # Tuple to keep track of cost & puzzle state
     puzzle_tuple = (puzzle.cost, 0, puzzle)
     heapq.heappush(queue, puzzle_tuple)
@@ -140,13 +151,18 @@ def UniformCostSearch(puzzle):
         cost, n_scheduled, pop_puzzle = least_cost
         cost = int(cost)
 
+        visited.add(puzzleToString(pop_puzzle))
+
         # If goal state reached, exit loop
         if (isGoalState(pop_puzzle)):
-            print('Hooray!')
-            return cost
+            return cost, pop_puzzle
         
         neighbors = findNeighborStates(pop_puzzle)
         for i in range (len(neighbors)):
+            
+            if puzzleToString(neighbors[i]) in visited:
+                continue
+
             neighbors[i].prev = pop_puzzle
             neighbors[i].cost = pop_puzzle.cost + 1
 
@@ -156,9 +172,38 @@ def UniformCostSearch(puzzle):
             heapq.heappush(queue, puzzle_tuple)
             counter += 1
         
-    
 
-    
+def OptimalPath(puzzle):
+
+    full_path = [puzzle]
+
+    while (puzzle.prev):
+        puzzle = puzzle.prev
+        full_path.append(puzzle)
+
+    full_path.reverse()
+
+    for i in range (len(full_path)):
+        print(f'Step {i}:')
+        printPuzzle(full_path[i])
+
+
+# def OptimalPath(puzzle):
+#     # Build path from goal → start
+#     path = []
+#     current = puzzle
+#     while current:
+#         path.append(current)
+#         current = current.prev
+
+#     # Reverse to go from start → goal
+#     path.reverse()
+
+#     # Print the path
+#     for step, state in enumerate(path):
+#         print(f"Step {step}:")
+#         printPuzzle(state)
+
 
 
 def main():
@@ -166,12 +211,17 @@ def main():
     "or '2' to create your own."+ '\n')
 
     if puzzle_mode == "1":
-        # puzzle = puzzleState(randomPuzzle())
+        puzzle = puzzleState(default_states[4])
+        cost, final_puzzle = UniformCostSearch(puzzle)
 
-        puzzles = [puzzleState(default_states[i]) for i in range(len(default_states))]
+        print(cost)
+        OptimalPath(final_puzzle)
 
-        for i in range (len(default_states)):
-            print(f'Total Cost: {UniformCostSearch(puzzles[i])}' )
+        # puzzles = [puzzleState(default_states[i]) for i in range(len(default_states))]
+
+        # for i in range (len(default_states)):
+        #     print(f'Total Cost: {UniformCostSearch(puzzles[i][0])}' )
+            
         # printPuzzle(puzzle)
         # neighbors = findNeighborStates(puzzle)
 
