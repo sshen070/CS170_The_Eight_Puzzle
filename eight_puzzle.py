@@ -32,6 +32,7 @@ goal_state = [[1, 2, 3],
                     [4, 5, 6],
                     [7, 8, 0]]
 
+
 class puzzleState:
     def __init__(self, currPuzzle):
         self.state = currPuzzle 
@@ -84,7 +85,7 @@ def findNeighborStates(puzzle):
                 new_state = puzzleState(deepCopy(puzzle))
                 
                 # Swap
-                swap_coord = new_state.state[x_coord + transition[0]][y_coord ]
+                swap_coord = new_state.state[x_coord + transition[0]][y_coord]
                 new_state.state[x_coord + transition[0]][y_coord] = new_state.state[x_coord][y_coord]
                 new_state.state[x_coord][y_coord] = swap_coord
 
@@ -171,6 +172,9 @@ def uniform_cost_search(puzzle, search_type):
             # If A* Misplaced Tile Heuristic
             if (search_type == 2):
                 h_n = numMisplacedTiles(neighbors[i])
+            
+            if (search_type == 3):
+                h_n = manhattanDistanceHeuristic(neighbors[i])
 
             neighbors[i].cost = pop_puzzle.cost + 1
 
@@ -180,23 +184,67 @@ def uniform_cost_search(puzzle, search_type):
             # Tuple compared in sequential order
             # Break ties between states with the same costs (counter)
             puzzle_tuple = (f_n, counter,  neighbors[i])
+            # print(puzzle_tuple)
             heapq.heappush(queue, puzzle_tuple)
             counter += 1
         
+
 # Return number of misplaced tiles (matches tiles in goal state)
 def numMisplacedTiles(puzzle):
     misplaced_tiles_h = 0
+
     for i in range (len(puzzle.state)):
         for j in range (len(puzzle.state[i])):
             if (puzzle.state[i][j] != goal_state[i][j]):
                 
                 # If state is '0' no need to keep track
                 # Empty tile will swap with last tile
-                if (puzzleState == '0'):
+                if (puzzle.state[i][j] == 0):
                     continue
                 misplaced_tiles_h += 1
 
     return misplaced_tiles_h
+
+
+def manhattanDistanceHeuristic(puzzle):
+    tot_manhattan_distance = 0
+    # goal_arr = createGoalArray()
+
+    for i in range (len(puzzle.state)):
+        for j in range (len(puzzle.state[i])):
+            # if (puzzle.state[i][j] != goal_state[i][j]):
+            if (puzzle.state[i][j] == 0):
+                continue
+            tot_manhattan_distance += findManhattanDistance(puzzle.state[i][j], (i, j))
+    
+    return tot_manhattan_distance
+
+
+def findManhattanDistance(tile_number, coords):
+    x_coord, y_coord = coords
+    
+    # How many times number divisible by size of array? --> row number
+    row_number = int((tile_number - 1)/len(goal_state))
+
+    # Each row & column start at index 0
+    # Last element in each row is divisible by len(goal_state)
+    column_number = (tile_number - 1) % len(goal_state)
+
+    # Find difference in x & y components
+    return abs(x_coord - row_number) + abs(y_coord - column_number)
+
+
+# def createGoalArray():
+#     goal_state_array = []
+#     puzzle_num = 1
+#     for i in range (len(goal_state)):
+#         for j in range (len(goal_state[i])):
+#             goal_state_array.append((i, j))
+#             puzzle_num += 1
+    
+#     goal_state_array[-1] = [(len(goal_state) - 1, len(goal_state) - 1)]
+#     print(goal_state_array)
+#     return goal_state_array
 
 
 def OptimalPath(puzzle):
@@ -214,6 +262,7 @@ def OptimalPath(puzzle):
 
 
 def main():
+
     puzzle_mode = input("Welcome to an 8-Puzzle Solver. Type '1' to use a default puzzle, "
     "or '2' to create your own."+ '\n')
 
@@ -225,15 +274,23 @@ def main():
         cost, final_puzzle = uniform_cost_search(puzzle, 1)
         end_time = time.perf_counter()
         elapsed_time = end_time - start_time
-        print(f"Algorithm executed in {elapsed_time:.4f} seconds")
+        print(f"Algorithm executed in {elapsed_time:.4f} seconds, Cost: {cost}")
+
 
         # A* with Misplaced Tile Heuristic
         start_time = time.perf_counter()
         cost, final_puzzle = uniform_cost_search(puzzle, 2)
         end_time = time.perf_counter()
         elapsed_time = end_time - start_time
-        print(f"Algorithm executed in {elapsed_time:.4f} seconds")
+        print(f"Algorithm executed in {elapsed_time:.4f} seconds, Cost: {cost}")
 
+
+        # A* with Manhattan Distance Heuristic
+        start_time = time.perf_counter()
+        cost, final_puzzle = uniform_cost_search(puzzle, 3)
+        end_time = time.perf_counter()
+        elapsed_time = end_time - start_time
+        print(f"Algorithm executed in {elapsed_time:.4f} seconds, Cost: {cost}")
 
         # print(cost)
         # OptimalPath(final_puzzle)
