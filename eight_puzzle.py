@@ -1,9 +1,10 @@
 # Eight Puzzle Solver
-# Supports:
 # 1) Uniform Cost Search (UCS)
 # 2) A* with Misplaced Tile heuristic
 # 3) A* with Manhattan Distance heuristic
+
 import random
+import heapq
 
 # Default States
 trivial =  [[1, 2, 3],
@@ -33,6 +34,7 @@ class puzzleState:
     def __init__(self, currPuzzle):
         self.state = currPuzzle 
         self.prev = None
+        self.cost = 0
 
 def randomPuzzle():
     return default_states[random.randint(0, len(default_states) - 1)]
@@ -86,6 +88,7 @@ def findNeighborStates(puzzle):
 
                 neighbors.append(new_state)
 
+        # Potentail transition in y-axis
         if (transition[1] != 0):
             # Same idea for y. If empty spot '0' is not in the first or last (3rd) row
             if y_coord + transition[1] >= 0 and y_coord + transition[1] < len(puzzle.state[0]):
@@ -113,6 +116,49 @@ def deepCopy(self):
     return puzzle_copy
 
 
+def isGoalState(puzzle):
+    for i in range (len(puzzle.state)):
+        for j in range (len(puzzle.state[i])):
+            if (puzzle.state[i][j] != goal_state[i][j]):
+                return False
+    return True
+            
+            
+
+def UniformCostSearch(puzzle):
+
+    # Use as heap to find state with least cost
+    queue = []
+
+    # Tuple to keep track of cost & puzzle state
+    puzzle_tuple = (puzzle.cost, 0, puzzle)
+    heapq.heappush(queue, puzzle_tuple)
+
+    counter = 1
+    while (queue):
+        least_cost = heapq.heappop(queue)
+        cost, n_scheduled, pop_puzzle = least_cost
+        cost = int(cost)
+
+        # If goal state reached, exit loop
+        if (isGoalState(pop_puzzle)):
+            print('Hooray!')
+            return cost
+        
+        neighbors = findNeighborStates(pop_puzzle)
+        for i in range (len(neighbors)):
+            neighbors[i].prev = pop_puzzle
+            neighbors[i].cost = pop_puzzle.cost + 1
+
+            # Tuple compared in sequential order
+            # Break ties between states with the same costs (counter)
+            puzzle_tuple = (neighbors[i].cost, counter,  neighbors[i])
+            heapq.heappush(queue, puzzle_tuple)
+            counter += 1
+        
+    
+
+    
 
 
 def main():
@@ -120,13 +166,18 @@ def main():
     "or '2' to create your own."+ '\n')
 
     if puzzle_mode == "1":
-        puzzle = puzzleState(randomPuzzle())
-        printPuzzle(puzzle)
-        neighbors = findNeighborStates(puzzle)
+        # puzzle = puzzleState(randomPuzzle())
 
-        for i in range (len(neighbors)):
-            print(f'Neighbor {i + 1}:') 
-            printPuzzle(neighbors[i])
+        puzzles = [puzzleState(default_states[i]) for i in range(len(default_states))]
+
+        for i in range (len(default_states)):
+            print(f'Total Cost: {UniformCostSearch(puzzles[i])}' )
+        # printPuzzle(puzzle)
+        # neighbors = findNeighborStates(puzzle)
+
+        # for i in range (len(neighbors)):
+        #     print(f'Neighbor {i + 1}:') 
+        #     printPuzzle(neighbors[i])
 
     # if puzzle_mode == "2":
     #     print("Enter your puzzle, using a zero to represent the blank. " +
