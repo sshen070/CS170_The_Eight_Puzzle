@@ -5,6 +5,8 @@
 
 import random
 import heapq
+import time
+
 
 # Default States
 trivial =  [[1, 2, 3],
@@ -132,7 +134,7 @@ def puzzleToString(puzzle):
     return set_state
 
 
-def UniformCostSearch(puzzle):
+def uniform_cost_search(puzzle, search_type):
     # Use as heap to find state with least cost
     queue = []
 
@@ -164,17 +166,40 @@ def UniformCostSearch(puzzle):
                 continue
 
             neighbors[i].prev = pop_puzzle
+            h_n = 0
+
+            # If A* Misplaced Tile Heuristic
+            if (search_type == 2):
+                h_n = numMisplacedTiles(neighbors[i])
+
             neighbors[i].cost = pop_puzzle.cost + 1
+
+            # For UCS no heuristic (h(n) = 0) 
+            f_n = neighbors[i].cost + h_n
 
             # Tuple compared in sequential order
             # Break ties between states with the same costs (counter)
-            puzzle_tuple = (neighbors[i].cost, counter,  neighbors[i])
+            puzzle_tuple = (f_n, counter,  neighbors[i])
             heapq.heappush(queue, puzzle_tuple)
             counter += 1
         
+# Return number of misplaced tiles (matches tiles in goal state)
+def numMisplacedTiles(puzzle):
+    misplaced_tiles_h = 0
+    for i in range (len(puzzle.state)):
+        for j in range (len(puzzle.state[i])):
+            if (puzzle.state[i][j] != goal_state[i][j]):
+                
+                # If state is '0' no need to keep track
+                # Empty tile will swap with last tile
+                if (puzzleState == '0'):
+                    continue
+                misplaced_tiles_h += 1
+
+    return misplaced_tiles_h
+
 
 def OptimalPath(puzzle):
-
     full_path = [puzzle]
 
     while (puzzle.prev):
@@ -188,34 +213,30 @@ def OptimalPath(puzzle):
         printPuzzle(full_path[i])
 
 
-# def OptimalPath(puzzle):
-#     # Build path from goal → start
-#     path = []
-#     current = puzzle
-#     while current:
-#         path.append(current)
-#         current = current.prev
-
-#     # Reverse to go from start → goal
-#     path.reverse()
-
-#     # Print the path
-#     for step, state in enumerate(path):
-#         print(f"Step {step}:")
-#         printPuzzle(state)
-
-
-
 def main():
     puzzle_mode = input("Welcome to an 8-Puzzle Solver. Type '1' to use a default puzzle, "
     "or '2' to create your own."+ '\n')
 
     if puzzle_mode == "1":
         puzzle = puzzleState(default_states[4])
-        cost, final_puzzle = UniformCostSearch(puzzle)
 
-        print(cost)
-        OptimalPath(final_puzzle)
+        # Uniform Cost Search
+        start_time = time.perf_counter()
+        cost, final_puzzle = uniform_cost_search(puzzle, 1)
+        end_time = time.perf_counter()
+        elapsed_time = end_time - start_time
+        print(f"Algorithm executed in {elapsed_time:.4f} seconds")
+
+        # A* with Misplaced Tile Heuristic
+        start_time = time.perf_counter()
+        cost, final_puzzle = uniform_cost_search(puzzle, 2)
+        end_time = time.perf_counter()
+        elapsed_time = end_time - start_time
+        print(f"Algorithm executed in {elapsed_time:.4f} seconds")
+
+
+        # print(cost)
+        # OptimalPath(final_puzzle)
 
         # puzzles = [puzzleState(default_states[i]) for i in range(len(default_states))]
 
