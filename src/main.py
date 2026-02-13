@@ -115,11 +115,11 @@ def main():
         algorithm = select_and_init_algorithm()
         
         if algorithm == 1:
-            print('Running Uniform Cost Search...')
+            print('\nRunning Uniform Cost Search...')
         if algorithm == 2:
-            print('Running Misplaced Tile Heuristic...')
+            print('\nRunning Misplaced Tile Heuristic...')
         if algorithm == 3:
-            print('Running Manhattan Distance Heuristic...')
+            print('\nRunning Manhattan Distance Heuristic...')
 
             
         
@@ -131,27 +131,11 @@ def main():
         
         print_statistics(cost, counter, max_queue_size, elapsed_time, final_puzzle)
 
-
-        # print(cost)
-        # OptimalPath(final_puzzle)
-
-        # puzzles = [puzzleState(default_states[i]) for i in range(len(default_states))]
-
-        # for i in range (len(default_states)):
-        #     print(f'Total Cost: {UniformCostSearch(puzzles[i][0])}' )
-            
-        # printPuzzle(puzzle)
-        # neighbors = findNeighborStates(puzzle)
-
-        # for i in range (len(neighbors)):
-        #     print(f'Neighbor {i + 1}:') 
-        #     printPuzzle(neighbors[i])
-
     if puzzle_mode == "2":
         print("Enter your puzzle, using a zero to represent the blank. " +
-        "Please only enter valid 8-puzzles. Enter the puzzle demilimiting " 
-        + "the numbers with a space. Type RETURN only when finished." + '\n')
-
+            "Please only enter valid 8-puzzles. Enter the puzzle demilimiting " +
+            "the numbers with a space. RET only when finished." + '\n')
+        
         puzzle_row_one = input("Enter the first row: ")
         puzzle_row_two = input("Enter the second row: ")
         puzzle_row_three = input("Enter the third row: ")
@@ -160,8 +144,7 @@ def main():
         puzzle_row_two = puzzle_row_two.split()
         puzzle_row_three = puzzle_row_three.split()
 
-        # Matrix positions must be ints
-        for i in range (0, 3):
+        for i in range(0, 3):
             puzzle_row_one[i] = int(puzzle_row_one[i])
             puzzle_row_two[i] = int(puzzle_row_two[i])
             puzzle_row_three[i] = int(puzzle_row_three[i])
@@ -169,17 +152,21 @@ def main():
         state = [puzzle_row_one, puzzle_row_two, puzzle_row_three]
         puzzle = puzzleState(state)
 
-        print(puzzle.state)
+        algorithm = select_and_init_algorithm()
 
-        # A* with Manhattan Distance Heuristic
+        if algorithm == 1:
+            print('\nRunning Uniform Cost Search...')
+        if algorithm == 2:
+            print('\nRunning Misplaced Tile Heuristic...')
+        if algorithm == 3:
+            print('\nRunning Manhattan Distance Heuristic...')
+
         start_time = time.perf_counter()
-        cost, final_puzzle = uniform_cost_search(puzzle, 3)
+        cost, counter, max_queue_size, final_puzzle = uniform_cost_search(puzzle, algorithm)
         end_time = time.perf_counter()
         elapsed_time = end_time - start_time
 
-        traceBack(final_puzzle)
-        print(f"Algorithm executed in {elapsed_time:.4f} seconds, Cost: {cost}")
-
+        print_statistics(cost, counter, max_queue_size, elapsed_time, final_puzzle)
     
     if puzzle_mode == "3":
 
@@ -196,10 +183,8 @@ def main():
         misplaced_tiles_states_expanded = []
         manhattan_states_expanded = []
 
-
-
         for i in range (len(default_states)):
-            
+
             state = default_states[i]
 
             # Uniform Cost Search
@@ -226,7 +211,6 @@ def main():
 
             misplaced_tiles_states_expanded.append(counter)
             misplaced_tiles_time.append(elapsed_time)
-
 
 
             # A* with Manhattan Distance Heuristic
