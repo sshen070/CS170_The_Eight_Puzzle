@@ -179,9 +179,9 @@ def main():
         manhattan_distance_time = []
 
         # Experiment 2 (Memory Usage vs Time per algorithm)
-        ucs_states_expanded = []
-        misplaced_tiles_states_expanded = []
-        manhattan_states_expanded = []
+        ucs_states_queue = []
+        misplaced_tiles_states_queue = []
+        manhattan_states_queue = []
 
         for i in range (len(default_states)):
 
@@ -196,7 +196,7 @@ def main():
             elapsed_time = end_time - start_time
             print(f"Algorithm executed in {elapsed_time:.4f} seconds, Cost: {cost}")
 
-            ucs_states_expanded.append(counter)            
+            ucs_states_queue.append(max_queue_size)            
             ucs_time.append(elapsed_time)
 
 
@@ -209,7 +209,7 @@ def main():
             elapsed_time = end_time - start_time
             print(f"Algorithm executed in {elapsed_time:.4f} seconds, Cost: {cost}")
 
-            misplaced_tiles_states_expanded.append(counter)
+            misplaced_tiles_states_queue.append(max_queue_size)
             misplaced_tiles_time.append(elapsed_time)
 
 
@@ -222,7 +222,7 @@ def main():
             elapsed_time = end_time - start_time
             print(f"Algorithm executed in {elapsed_time:.4f} seconds, Cost: {cost}")
 
-            manhattan_states_expanded.append(counter)
+            manhattan_states_queue.append(max_queue_size)
             manhattan_distance_time.append(elapsed_time)
 
             depth.append(cost)
@@ -236,7 +236,7 @@ def main():
 
         plt.xlabel("Solution Depth")
         plt.ylabel("Time (seconds)")
-        plt.title("Time vs Solution Depth for 8-Puzzle Algorithms")
+        plt.title("Solution Depth vs Time for 8-Puzzle Algorithms")
         plt.legend(["Uniform Cost Search", "A* Misplaced Tile", "A* Manhattan Distance"])
 
         plt.show()
@@ -244,13 +244,13 @@ def main():
 
         # Experiment 2 Plot
         plt.figure()
-        plt.plot(depth, ucs_states_expanded, marker='o')
-        plt.plot(depth, misplaced_tiles_states_expanded, marker='o')
-        plt.plot(depth, manhattan_states_expanded, marker='o')
+        plt.plot(depth, ucs_states_queue, marker='o')
+        plt.plot(depth, misplaced_tiles_states_queue, marker='o')
+        plt.plot(depth, manhattan_states_queue, marker='o')
 
         plt.xlabel("Solution Depth")
-        plt.ylabel("Memory Usage (states expanded)")
-        plt.title("Time vs Memory Usage for 8-Puzzle Algorithms")
+        plt.ylabel("Memory Usage (Max Queue Size)")
+        plt.title("Memory Usage vs Time for 8-Puzzle Algorithms")
         plt.legend(["Uniform Cost Search", "A* Misplaced Tile", "A* Manhattan Distance"])
 
         plt.show()
